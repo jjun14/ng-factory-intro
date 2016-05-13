@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html ng-app='myApp'>
+  <head>
+    <meta charset="utf-8">
+    <title>Angular Demo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var myApp = angular.module('myApp', []);
+
+        myApp.controller('usersController', function($scope, userFactory){
+          console.log('instantiating the usersController');
+          $scope.users = [];
+
+          function init(){
+            userFactory.getAllUsers(function(data){
+              console.log('invoking the callback');
+              console.log('with data:', data);
+              $scope.users = data;
+            })
+          }
+          init();
+
+          $scope.addUser = function(user){
+            console.log('adding a user');
+            console.log(user);
+            // $scope.users.push(user);
+            // $scope.newUser = {};
+            userFactory.addUser(user, function(data){
+              console.log('updating the users in scope');
+              $scope.users = data;
+            })
+          }
+        });
+
+        myApp.factory('userFactory', function(){
+            var factory = {};
+            var users = [
+              {'first_name': 'Jimmy', 'last_name': 'Jun', 'fave_lang': 'Python'},
+              {'first_name': 'Jay', 'last_name': 'Patel', 'fave_lang': 'Python'}
+            ];
+            // attach methods to our factory
+            factory.getAllUsers = function(callback){
+              console.log('in the factory getAllUsers function');
+              callback(users);
+            }
+
+            factory.addUser = function(user, callback){
+              console.log('adding a user in the factory')
+                users.push(user);
+                callback(users);
+            }
+
+            return factory;
+        })
+    </script>
+  </head>
+  <body>
+    <div ng-controller='usersController'>
+      {{ users }}
+      <h1>Users Controller</h1>
+      First Name: <input type="text" ng-model='newUser.first_name'>
+      Last Name: <input type="text" ng-model='newUser.last_name'>
+      Favorite Language: <input type="text" ng-model='newUser.fave_lang'>
+      <button ng-click='addUser(newUser)'>Create User</button>
+      <table border="0" cellspacing="5" cellpadding="5">
+        <thead>
+          <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Fave Language</th>
+              <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat='user in users'>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.fave_lang }}</td>
+            <td> <button>Delete User</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
